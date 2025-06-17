@@ -1,12 +1,15 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
+import cors from 'cors';
+
 
 console.log('🚀 Starting server...');
 dotenv.config();
 console.log('🔑 API KEY =', process.env.OPENAI_API_KEY);
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.post('/gpt', async (req, res) => {
