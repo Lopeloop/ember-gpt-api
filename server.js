@@ -1,18 +1,12 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import fetch from 'node-fetch';
-import cors from 'cors';
+import express from "express";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
 
-
-console.log('🚀 Starting server...');
 dotenv.config();
-console.log('🔑 API KEY =', process.env.OPENAI_API_KEY);
-
 const app = express();
-app.use(cors());
 app.use(express.json());
 
-app.post('/gpt', async (req, res) => {
+app.post("/gpt", async (req, res) => {
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -26,20 +20,29 @@ app.post('/gpt', async (req, res) => {
           { role: "system", content: "You are a helpful assistant." },
           { role: "user", content: req.body.focus || "Hello" }
         ]
-      }),
+      })
     });
 
     const json = await response.json();
-    console.log('📦 OpenAI response:', JSON.stringify(json, null, 2));
-    res.send({ reply: json.choices?.[0]?.message?.content || 'No response from model' });
+
+    // лог ответа OpenAI
+    console.log("🦉 OpenAI response:", JSON.stringify(json, null, 2));
+
+    // если есть ошибка — отправим её клиенту
+    if (json.error) {
+      console.error("❌ OpenAI error:", json.error);
+      return res.status(500).send({ error: "OpenAI error", details: json.error });
+    }
+
+    const reply = json.choices?.[0]?.message?.content || "No response from model";
+    res.send({ reply });
 
   } catch (error) {
-    console.error('❌ Error:', error.message);
-    res.status(500).send({ error: 'Something went wrong' });
+    console.error("❌ Error:", error.message);
+    res.status(500).send({ error: "Something went wrong" });
   }
 });
 
 app.listen(3000, () => {
-  console.log('✅ Server is running on http://localhost:3000');
+  console.log("✅ Server is running on http://localhost:3000");
 });
-
