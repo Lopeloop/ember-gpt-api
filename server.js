@@ -25,6 +25,16 @@ app.post("/gpt", async (req, res) => {
       })
     });
 
+    // 🟡 Лог статуса
+    console.log("📡 OpenAI status:", response.status);
+
+    // 🟥 Обработка ошибки статуса
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("❌ OpenAI error response:", errText);
+      return res.status(500).send({ error: "OpenAI error", details: errText });
+    }
+
     const json = await response.json();
     console.log("📥 OpenAI response:", JSON.stringify(json, null, 2));
 
@@ -40,4 +50,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server is running on http://localhost:${PORT}`);
 });
-
