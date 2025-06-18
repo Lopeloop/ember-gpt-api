@@ -1,9 +1,11 @@
 import express from "express";
-import fetch from "node-fetch";
+import cors from "cors";
 import dotenv from "dotenv";
+import fetch from "node-fetch";
 
 dotenv.config();
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.post("/gpt", async (req, res) => {
@@ -23,22 +25,19 @@ app.post("/gpt", async (req, res) => {
       })
     });
 
-    // 🔹 Новая строчка: логируем статус ответа
-    console.log("📥 Got response:", response.status);
-
     const json = await response.json();
+    console.log("📥 OpenAI response:", JSON.stringify(json, null, 2));
 
-    // 🔹 Новая строчка: логируем весь JSON ответ
-    console.log("✅ JSON from OpenAI:", JSON.stringify(json, null, 2));
-
-    res.send({ reply: json.choices?.[0]?.message?.content || "No response from model" });
-
+    const reply = json?.choices?.[0]?.message?.content || "No response from model";
+    res.send({ reply });
   } catch (error) {
     console.error("❌ Error:", error.message);
     res.status(500).send({ error: "Something went wrong" });
   }
 });
 
-app.listen(3000, () => {
-  console.log("✅ Server is running on http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Server is running on http://localhost:${PORT}`);
 });
+
