@@ -23,19 +23,15 @@ app.post("/gpt", async (req, res) => {
       })
     });
 
+    // 🔹 Новая строчка: логируем статус ответа
+    console.log("📥 Got response:", response.status);
+
     const json = await response.json();
 
-    // лог ответа OpenAI
-    console.log("🦉 OpenAI response:", JSON.stringify(json, null, 2));
+    // 🔹 Новая строчка: логируем весь JSON ответ
+    console.log("✅ JSON from OpenAI:", JSON.stringify(json, null, 2));
 
-    // если есть ошибка — отправим её клиенту
-    if (json.error) {
-      console.error("❌ OpenAI error:", json.error);
-      return res.status(500).send({ error: "OpenAI error", details: json.error });
-    }
-
-    const reply = json.choices?.[0]?.message?.content || "No response from model";
-    res.send({ reply });
+    res.send({ reply: json.choices?.[0]?.message?.content || "No response from model" });
 
   } catch (error) {
     console.error("❌ Error:", error.message);
